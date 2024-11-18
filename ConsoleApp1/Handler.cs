@@ -24,9 +24,22 @@ namespace ConsoleApp1
 
        public async Task HandleUpdateOrderAsync(Guid orderId, string customerId, int orderQty)
        {
-            var order = AggregateOrder.UpdateOrder(orderId, customerId, orderQty);
-            await _eventStore.SaveEventsAsync(orderId, order.Events);
-       }
+                // Recupera gli eventi esistenti dal event store
+        var events = await _eventStore.GetEventsAsync(orderId);
+
+        // Crea un'istanza di AggregateOrder e applica gli eventi esistenti
+        var order = new AggregateOrder();
+        foreach (var @event in events)
+        {
+            order.Apply(@event);
+        }
+
+        // Applica l'aggiornamento all'istanza esistente
+        order.UpdateOrder(orderId, customerId, orderQty);
+
+        // Salva i nuovi eventi nel event store
+        await _eventStore.SaveEventsAsync(orderId, order.Events);
+        }
     }
 
     public class OrderQueryHandler
@@ -43,24 +56,12 @@ namespace ConsoleApp1
             var events = await _eventStore.GetEventsAsync(orderId);
             var order = new AggregateOrder();
 
-            Console.WriteLine("Order before applying events:");
-            Console.WriteLine(order);
-
             foreach (var @event in events)
             {
                 order.Apply(@event);
             }
 
-            // Stampa tutti gli eventi presenti nella lista
-            Console.WriteLine("Events in order:");
-            foreach (var evt in order.Events)
-            {
-                string json = JsonSerializer.Serialize(evt, new JsonSerializerOptions { WriteIndented = true });
-                Console.WriteLine(json);
-            }
-
             return order;
         }
-
        }
 }

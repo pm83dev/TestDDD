@@ -22,7 +22,7 @@ public class InMemoryEventStore : IEventStore
             _store[aggregateId] = new List<IEvent>();
         }
         _store[aggregateId].AddRange(events);
-        Console.WriteLine($"Saved {events.Count()} events for aggregate ID: {aggregateId}");
+        //Console.WriteLine($"Saved {events.Count()} events for aggregate ID: {aggregateId}");
         await Task.CompletedTask;
     }
 

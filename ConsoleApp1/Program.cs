@@ -17,6 +17,8 @@ internal class Program
 
           var queryHandler = new OrderQueryHandler(eventStore);
 
+          
+
           //Create order
           var orderId = Guid.NewGuid();
           var customerId = "customerTest1";
@@ -25,8 +27,7 @@ internal class Program
           
           //Update order
           var newOrdQty = 20;
-          orderQty = newOrdQty;
-          await CommandHandler.HandleUpdateOrderAsync(orderId, customerId,orderQty);
+          await CommandHandler.HandleUpdateOrderAsync(orderId, customerId,newOrdQty);
 
           // Recupera l'ordine e visualizza lo stato
           var order = await queryHandler.GetOrderAsync(orderId);
